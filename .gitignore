@@ -1,0 +1,12 @@
+
+target
+PractiseTestNG/test-output
+test-output/html/index.html
+*.css
+*.js
+*.html
+test-output/xml/practise_results.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/compiler.xml
