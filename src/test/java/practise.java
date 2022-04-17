@@ -22,10 +22,7 @@ public class practise {
         //mang 2 chieu row = 5, col = 2
         getLengthArr(2, 5, 3);
         addValueArray();
-    }
 
-    @BeforeClass
-    public void printArr() {
         System.out.println("========================== gia tri mang 1 chieu ======================");
         if (arrOne != null) {
             for (int i = 0; i < arrOne.length; i++) {
@@ -42,20 +39,28 @@ public class practise {
         }
     }
 
+
     //TC1 when value match pattern ${_getData[%d]}
     @Test
     public void TC1() {
-        String result = getValueToArray("${_getData[1]}", 1);
+        String result = (String)getValueToArray("${_getData[1]}", 1);
         Assert.assertEquals("test 1", result);
         System.out.println("TC1 is Successful");
     }
 
-    //TC1 when value match pattern ${_getData[%d][%d]}
+    //TC2 when value match pattern ${_getData[%d][%d]}
     @Test
     public void TC2() {
-        String result = getValueToArray("${_getData[1][2]}", 2);
+        String result = (String)getValueToArray("${_getData[1][2]}", 2);
         Assert.assertEquals("row 1 col 2",result);
         System.out.println("TC2 is Successful");
+    }
+    //TC3 when value not match pattern ${_getData[%d]}
+    @Test
+    public void TC3() {
+        boolean result = (Boolean)getValueToArray("TEST$Data[1]}", 2);
+        Assert.assertFalse(result);
+        System.out.println("TC3 is Successful");
     }
 
     @AfterClass
@@ -88,8 +93,9 @@ public class practise {
         }
     }
 
-    public String getValueToArray(String data, int number) {
+    public Object getValueToArray(String data, int number) {
         Pattern pattern = null;
+        Object obj = null;
         if (number == 1) {
             pattern = Pattern.compile(PATTERN_ARRAY_ONE);
             if (pattern.matcher(data).matches()) {
@@ -100,6 +106,8 @@ public class practise {
                     return arrOne[Integer.parseInt(m.group())];
                 }
 
+            }else{
+                return  false;
             }
 
 
@@ -115,8 +123,11 @@ public class practise {
                 String[] arr = index.split(",");
                 return arrTwo[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])];
             }
+            else{
+                return  false;
+            }
         }
-        return "";
+        return obj;
     }
 
     public static void main(String[] args) {
