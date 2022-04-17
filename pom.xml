@@ -24,12 +24,12 @@
                         <file>testng.xml</file>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
-<!--                    <properties>-->
-<!--                        <property>-->
-<!--                            <name>All Test case</name>-->
-<!--                            <value>test Practise</value>-->
-<!--                        </property>-->
-<!--                    </properties>-->
+                    <properties>
+                        <property>
+                            <name>All Test case</name>
+                            <value>test Practise</value>
+                        </property>
+                    </properties>
                 </configuration>
             </plugin>
         </plugins>

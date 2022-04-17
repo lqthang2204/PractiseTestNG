@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 public class practise {
     String[] arrOne;
     String[][] arrTwo;
-    public static final String PATTERN_ARRAY_ONE = "\\$\\{_getData\\[\\d{1}]\\}";
-    public static final String PATTERN_ARRAY_TWO = "\\$\\{_getData\\[\\d{1}]\\[\\d{1}]\\}";
+    public static final String PATTERN_ARRAY_ONE = "(.*)\\$\\{_getData\\[\\d+]\\}(.*)";
+    public static final String PATTERN_ARRAY_TWO = "(.*)\\$\\{_getData\\[\\d+]\\[\\d+]\\}(.*)";
 
     @BeforeClass
     public void Start() {
@@ -19,7 +19,7 @@ public class practise {
         // mang 1 chieu,  length = 5
         getLengthArr(1,5,5);
 
-        //mang 2 chieu row = 5, col = 2
+        //mang 2 chieu row = 5, col = 3
         getLengthArr(2, 5, 3);
         addValueArray();
 
@@ -40,27 +40,86 @@ public class practise {
     }
 
 
-    //TC1 when value match pattern ${_getData[%d]}
+    //TC1 when value match arr1 pattern ${_getData[%d]}
     @Test
     public void TC1() {
         String result = (String)getValueToArray("${_getData[1]}", 1);
         Assert.assertEquals("test 1", result);
-        System.out.println("TC1 is Successful");
+        System.out.println("Expected :test 1");
+        System.out.println("Actual   :"+result);
     }
 
-    //TC2 when value match pattern ${_getData[%d][%d]}
+    //TC2 when value match arr2 pattern ${_getData[%d][%d]}
     @Test
     public void TC2() {
         String result = (String)getValueToArray("${_getData[1][2]}", 2);
         Assert.assertEquals("row 1 col 2",result);
-        System.out.println("TC2 is Successful");
+        System.out.println("Expected :row 1 col 2");
+        System.out.println("Actual   :"+result);
     }
-    //TC3 when value not match pattern ${_getData[%d]}
+    //TC3 when value not match arr1  pattern ${_getData[%d]}
     @Test
     public void TC3() {
-        boolean result = (Boolean)getValueToArray("TEST$Data[1]}", 2);
+        boolean result = (Boolean)getValueToArray("TEST$Data[1]}", 1);
         Assert.assertFalse(result);
-        System.out.println("TC3 is Successful");
+        System.out.println("Expected :false");
+        System.out.println("Actual   :"+result);
+    }
+    //TC4 when value not match arr2 pattern ${_getData[%d][%d]}
+    @Test
+    public void TC4() {
+        boolean result = (Boolean)getValueToArray("TEST$Data[1][2]}", 2);
+        Assert.assertFalse(result);
+        System.out.println("Expected :false");
+        System.out.println("Actual   :"+result);
+    }
+    //TC5 when value have index > arr2 pattern ${_getData[%d][%d]}
+    @Test
+    public void TC5() {
+        String result = (String)getValueToArray("${_getData[1][10]}", 2);
+        Assert.assertEquals("Invalid array row 10", result);
+        System.out.println("Expected :Invalid array row 10");
+        System.out.println("Actual   :"+ result);
+    }
+    //TC5 when value have index > arr1 pattern ${_getData[%d][%d]}
+    @Test
+    public void TC6() {
+        String result = (String)getValueToArray("${_getData[7]}", 1);
+        Assert.assertEquals("Invalid array index 7", result);
+        System.out.println("Expected :Invalid array index 7");
+        System.out.println("Actual   :Invalid array index 7");
+    }
+    //TC7 when value have String contains arrOne pattern ${_getData[%d]}
+    @Test
+    public void TC7() {
+        String result = (String)getValueToArray("thang${_getData[1]}TestNG", 1);
+        Assert.assertEquals("test 1", result);
+        System.out.println("Expected :test 1");
+        System.out.println("Actual   :" + result);
+    }
+    //TC8 when value have String contains arrTwo pattern ${_getData[%d]}
+    @Test
+    public void TC8() {
+        String result = (String)getValueToArray("thang${_getData[1][2]}TestNG", 2);
+        Assert.assertEquals("row 1 col 2", result);
+        System.out.println("Expected :row 1 col 2");
+        System.out.println("Actual   :" + result);
+    }
+    //TC9 when value have 2 index in arrOne pattern ${_getData[%d]}
+    @Test
+    public void TC9() {
+        Boolean result = (Boolean)getValueToArray("thang${_getData[1][2]}TestNG", 1);
+        Assert.assertFalse(result);
+        System.out.println("Expected :false");
+        System.out.println("Actual   :" + result);
+    }
+    //TC10 when value have 1 index in arrOne pattern ${_getData[%d][%d]}
+    @Test
+    public void TC10() {
+        Boolean result = (Boolean)getValueToArray("thang${_getData[1]}TestNG", 2);
+        Assert.assertFalse(result);
+        System.out.println("Expected :false");
+        System.out.println("Actual   :" + result);
     }
 
     @AfterClass
@@ -96,14 +155,21 @@ public class practise {
     public Object getValueToArray(String data, int number) {
         Pattern pattern = null;
         Object obj = null;
+        String index = "";
         if (number == 1) {
             pattern = Pattern.compile(PATTERN_ARRAY_ONE);
             if (pattern.matcher(data).matches()) {
                 Pattern p = Pattern.compile("\\d+");
                 Matcher m = p.matcher(data);
                 while (m.find()) {
-                    System.out.println("====== " + m.group());
-                    return arrOne[Integer.parseInt(m.group())];
+                    index = index + m.group() + ",";
+                }
+                String[] arr = index.split(",");
+                String message = checkLengthArr(1,Integer.parseInt(arr[0]),0);
+                if(!message.equals("")){
+                    return message;
+                }else{
+                    return arrOne[Integer.parseInt(arr[0])];
                 }
 
             }else{
@@ -113,7 +179,6 @@ public class practise {
 
         } else if (number == 2) {
             pattern = Pattern.compile(PATTERN_ARRAY_TWO);
-            String index = "";
             if (pattern.matcher(data).matches()) {
                 Pattern p = Pattern.compile("\\d+");
                 Matcher m = p.matcher(data);
@@ -121,13 +186,36 @@ public class practise {
                     index = index + m.group() + ",";
                 }
                 String[] arr = index.split(",");
-                return arrTwo[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])];
+                String message = checkLengthArr(2,Integer.parseInt(arr[0]),Integer.parseInt(arr[1]));
+                if(!message.equals("")){
+                    return message;
+                }else{
+                    return arrTwo[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])];
+                }
+
             }
             else{
                 return  false;
             }
         }
         return obj;
+    }
+    public String checkLengthArr(int number, int col, int row){
+        if(number==1){
+            if(arrOne.length<col){
+                return "Invalid array index "+ col;
+            }
+        }
+        if(number==2){
+            if(arrTwo.length<row){
+                return "Invalid array row "+ row;
+            }
+            else if(arrTwo[0].length<col){
+                return "Invalid array col "+ col;
+            }
+        }
+        return "";
+
     }
 
     public static void main(String[] args) {
